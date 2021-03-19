@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  align-self: flex-start;
+  flex: 1;
+  flex-direction: column;
+  padding: 24px;
+
+  .btn {
+    align-self: flex-start;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 12px;
+  }
+}
