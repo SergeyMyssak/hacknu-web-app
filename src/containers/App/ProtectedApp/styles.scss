@@ -5,10 +5,12 @@
   justify-content: space-between;
   box-sizing: border-box;
   min-height: 100vh;
+  border: none;
 
   &__content {
     display: flex;
     flex: 1;
     flex-direction: column;
+    border: none;
   }
 }
