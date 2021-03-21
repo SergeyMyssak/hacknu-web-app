@@ -9,7 +9,7 @@ BACKEND - https://github.com/andreymyssak/hacknu-backend-app
 
 **Tech stack:**
 
-Web app: React - TypeScript - Redux-Saga - Immer - Formik - Axios - Lodash - Material UI - Sass
+Web app: React - TypeScript - Redux-Saga - Immer - Formik - Axios - Yandex Map - Lodash - Material UI - Sass
 
 Mobile app: React Native - TypeScript - Redux-Saga - Formik - Axios - Lodash
 
