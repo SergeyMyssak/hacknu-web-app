@@ -13,10 +13,14 @@ const ProtectedApp: FC = (): JSX.Element => {
   return (
     <div className="app">
       <div className="app__content">
-        <p style={{ padding: 24 }}>Header</p>
+        <div style={{ backgroundColor: '#301272' }}>
+          <p style={{ padding: 24, color: '#301272' }}> Header </p>
+        </div>
         <Switch>{PROTECTED_ROUTES.map(renderRoute)}</Switch>
       </div>
-      <p style={{ padding: 24 }}>Footer</p>
+      <div style={{ backgroundColor: '#301272' }}>
+        <p style={{ padding: 24, color: '#301272' }}>Footer</p>
+      </div>
     </div>
   );
 };

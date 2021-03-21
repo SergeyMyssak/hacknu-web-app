@@ -5,15 +5,24 @@ import examplePageReducer, {
   containerId as examplePageId,
 } from './containers/ExamplePage/reducer';
 import examplePageSagas from './containers/ExamplePage/sagas';
+import homePageReducer, {
+  containerId as homePageId,
+} from './containers/HomePage/reducer';
+import homePageSagas from './containers/HomePage/sagas';
 
 const rootReducer = combineReducers({
   [examplePageId]: examplePageReducer,
+  [homePageId]: homePageReducer,
 });
 
-const sagas = [examplePageSagas];
+export type AppState = ReturnType<typeof rootReducer>;
+
+const sagas = [examplePageSagas, homePageSagas];
 
 const composeEnhancers =
   (process.env.NODE_ENV !== 'production' &&
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
   compose;
 
