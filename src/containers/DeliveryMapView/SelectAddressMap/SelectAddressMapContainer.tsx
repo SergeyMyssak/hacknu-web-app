@@ -1,12 +1,8 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
 
-// import { IAddress, ICity, IRegion } from '@interfaces/location';
 import SelectAddressMapView from './SelectAddressMapView';
 
 interface IProps {
-  // region?: IRegion;
-  // city?: ICity;
-  // address?: IAddress;
   height: number;
   onChangeAddress: (data?: any) => void;
 }

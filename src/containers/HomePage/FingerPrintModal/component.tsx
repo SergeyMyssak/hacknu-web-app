@@ -25,8 +25,7 @@ function ProjectModal(props: ModalProps): JSX.Element {
   return (
     <div className="project-modal">
       <div className="project-modal-header">
-        <div></div>
-        <div style={{ cursor: 'pointer', marginRight: '-22px' }}>
+        <div style={{ cursor: 'pointer', marginLeft: '-16px' }}>
           <img src={Close} alt="close" onClick={onCloseModal} />
         </div>
       </div>
@@ -35,7 +34,6 @@ function ProjectModal(props: ModalProps): JSX.Element {
           paddingLeft: '18px',
           paddingRight: '18px',
           marginBottom: '20px',
-          // width: '85%',
           textAlign: 'center',
           display: 'flex',
           justifyContent: 'center',

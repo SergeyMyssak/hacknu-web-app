@@ -1,95 +1,107 @@
 import React, { FC, useCallback, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Backdrop, CircularProgress } from '@material-ui/core';
 
 import DeliveryMap from 'containers/DeliveryMapView/DeliveryMap';
 import CodeModal from 'containers/HomePage/FingerPrintModal/component';
 import ProjectModal from 'containers/HomePage/Modal/component';
-import authActions from 'store/auth/actions';
 
+import { AppState } from '../../store';
+
+import { containerId as homePageId, createApplication } from './reducer';
 import { FormInputs, FormValues } from './types';
 
 import './styles.scss';
 
-const HomePage: FC = (props: any): JSX.Element => {
+const DEFAULT_VALUES = {
+  categoryId: 1,
+  address: '',
+  need: '',
+  problem: '',
+  longitude: '',
+  latitude: '',
+};
+
+const HomePage: FC = (): JSX.Element => {
+  const dispatch = useDispatch();
+
   const { handleSubmit, register, reset } = useForm<FormValues>({
     mode: 'onChange',
   });
 
-  const { signUp, userData, userLoading } = props;
+  const { isApplicationLoading } = useSelector(
+    (state: AppState) => state[homePageId]
+  );
 
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [isShowModal, setIsShowModal] = useState<boolean>(false);
-  const [selectedAddress, setSelectedAddress] = useState<string>('');
 
-  const DEFAULT_VALUES = {
-    categoryId: 1,
-    address: '',
-    need: 'Money',
-    problem: 'I got robbed',
-    longitude: '',
-    latitude: '',
-  };
+  const [
+    isPhoneNumberModalOpen,
+    setPhoneNumberModalVisibility,
+  ] = useState<boolean>(false);
+  const [
+    isVerificationCodeModalOpen,
+    setVerificationCodeModalVisibility,
+  ] = useState<boolean>(false);
 
-  const [isCodeModal, setIsCodeModal] = useState<boolean>(false);
+  const [addressData, setAddressData] = useState<any>();
+
   const [applicationData, setApplicationData] = useState(DEFAULT_VALUES);
 
-  const onFormSubmit = useCallback<SubmitHandler<FormValues>>((values) => {
-    const newData = {
-      ...applicationData,
-      categoryId: parseInt(values.category, 10),
-      need: values.need,
-      problem: values.description,
-    };
-    setApplicationData(newData);
-    setTimeout(() => {
-      setIsShowModal(true);
-      reset({});
-    }, 1500);
-    console.log(values);
-  }, []);
+  const onFormSubmit = useCallback<SubmitHandler<FormValues>>(
+    ({ category, need, description }) => {
+      const newData = {
+        ...applicationData,
+        categoryId: parseInt(category, 10),
+        need,
+        problem: description,
+      };
 
-  console.log('the the reducers: ', userData, userLoading);
+      setApplicationData(newData);
+      setPhoneNumberModalVisibility(true);
+    },
+    []
+  );
 
   const handleSubmitPhone = (phone: any) => {
-    setIsShowModal(false);
-    openCodeModal();
     setPhoneNumber(phone.phone);
-    // signUp({ phone: phone, fingerprint: '12345' });
+    setPhoneNumberModalVisibility(false);
+    setVerificationCodeModalVisibility(true);
   };
 
   const onChangeAddress = (address: any) => {
-    console.log('the address: ', address);
-    setSelectedAddress(address.address);
-    const newData = {
-      ...applicationData,
-      address: address.address,
-      latitude: address.latitude.toString(),
-      longitude: address.longitude.toString(),
+    setAddressData(address);
+  };
+
+  const handleSubmitForm = (code: any) => {
+    setVerificationCodeModalVisibility(false);
+    const callback = () => {
+      reset();
+      setAddressData(undefined);
     };
-    setApplicationData(newData);
-  };
 
-  const openCodeModal = () => {
-    setTimeout(() => {
-      setIsCodeModal(true);
-    }, 1500);
+    dispatch(
+      createApplication.request({
+        ...applicationData,
+        ...addressData,
+        phone: phoneNumber,
+        code,
+        fingerprint: '!@#$',
+        reset: callback,
+      })
+    );
   };
-
-  const handleSubmitCode = (code: any) => {
-    console.log('the code: ', code);
-    setIsCodeModal(false);
-    setVerificationCode(code.phone);
-    signUp({ phone: phoneNumber, fingerprint: code.phone });
-    // console.log('heeey', phoneNumber, code);
-  };
-
-  console.log('the application data: ', applicationData);
 
   return (
     <>
-      <div className={isShowModal ? 'formContainerModal' : 'formContainer'}>
+      <div
+        className={
+          isPhoneNumberModalOpen || isVerificationCodeModalOpen
+            ? 'formContainerModal'
+            : 'formContainer'
+        }
+      >
         <div className="homepageContainer">
           <form onSubmit={handleSubmit(onFormSubmit)}>
             <div className="input-wrp mt-24">
@@ -154,18 +166,13 @@ const HomePage: FC = (props: any): JSX.Element => {
               <div style={{ marginBottom: '16px' }}>
                 <span className="inputLabel">Select address</span>
               </div>
-              <DeliveryMap
-                // region={region}
-                // address={address}
-                // city={city}
-                handleAddress={onChangeAddress}
-              />
-              {selectedAddress !== '' && (
+              <DeliveryMap handleAddress={onChangeAddress} />
+              {addressData?.address && (
                 <p
                   className="react-select__label delivery-map__label"
                   style={{ fontWeight: 400 }}
                 >
-                  Your address is: {selectedAddress}
+                  Your address is: {addressData?.address}
                 </p>
               )}
             </div>
@@ -181,29 +188,23 @@ const HomePage: FC = (props: any): JSX.Element => {
           </form>
         </div>
       </div>
-      {isShowModal && (
+      {isPhoneNumberModalOpen && (
         <ProjectModal
           submitPhone={handleSubmitPhone}
-          onCloseModal={() => setIsShowModal(false)}
+          onCloseModal={() => setPhoneNumberModalVisibility(false)}
         />
       )}
-      {isCodeModal && (
+      {isVerificationCodeModalOpen && (
         <CodeModal
-          submitPhone={handleSubmitCode}
-          onCloseModal={() => setIsCodeModal(false)}
+          submitPhone={handleSubmitForm}
+          onCloseModal={() => setVerificationCodeModalVisibility(false)}
         />
       )}
+      <Backdrop open={isApplicationLoading} style={{ zIndex: 10000 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 };
 
-const mapStateToProps = (state: any) => ({
-  userLoading: state.authReducer.login.loading,
-  userData: state.authReducer.login.data,
-});
-
-const mapDispatchToProps = {
-  signUp: authActions.signUp,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
+export default HomePage;
